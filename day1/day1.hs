@@ -1,4 +1,5 @@
 import InputHelper
+import qualified Data.Set as S (Set,singleton,member,insert)
 
 main = do
     part1
@@ -18,9 +19,9 @@ solve1 :: [Int] -> Int
 solve1 is = foldr (+) 0 is  
 
 solve2 :: [Int] -> Int
-solve2 is = solve2Helper is is [0] 0
+solve2 is = solve2Helper is is (S.singleton 0) 0
 
-type Encountered = [Int]
+type Encountered = S.Set Int
 type CurrentSum = Int
 type Input = [Int]
 type OriginalInput = [Int]
@@ -30,9 +31,9 @@ solve2Helper oi [] es sum = solve2Helper oi oi es sum
 solve2Helper oi inp es sum = 
     let ns = sum + (head inp) -- new sum
         ni = tail inp -- new input
-        ne = ns : es -- new encountered
+        ne = S.insert ns es -- new encountered
     in
-        if (elem ns es) then ns else solve2Helper oi ni ne ns
+        if (S.member ns es) then ns else solve2Helper oi ni ne ns
    
 
 filterPlus :: String -> String
@@ -44,6 +45,3 @@ simpleInput3 = "-6, +3, +8, +5, -6"
 simpleInput4 = "+7, +7, -2, -7, -4" 
 
 allSimpleInputs = [simpleInput1, simpleInput2, simpleInput3, simpleInput4] 
-
- 
- 
