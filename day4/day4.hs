@@ -2,12 +2,12 @@ import InputHelper
 import Data.List.Split
 import Data.List
 import Data.Ord
-import qualified Data.Map.Strict as M (Map, empty, insert,fromList,member,adjust,filter,elems,keys,(!))
+import qualified Data.Map.Strict as M (Map, empty, insert,fromList,member,adjust,filter,elems,keys,(!),toList)
 
 part1 = do
     content <- readFile "input.txt"
     let input = lines $ content
-   --let input = solve1  $ lines $ simpleInput
+   --let input = lines $ simpleInput
     print (solve1 input)
 
 solve1 :: [String] -> (String, Int)
@@ -20,6 +20,22 @@ solve1 xs =
         most = (maximumBy (comparing length) (groupBy (==) allMinutesAsSortedList))  
     in
         (maxId, most!!0) 
+
+part2 = do
+    content <- readFile "input.txt"
+    let input = lines $ content
+    --let input = lines $ simpleInput
+    let result = solve2 input
+    print result
+        
+solve2 :: [String] -> [(String, [CurrentStart])]
+solve2 xs = 
+    let
+        allMap = toMap $ sortRecords $ map toRecord xs
+        allList = M.toList allMap
+        mapped = map (\(k,v) ->  (k, (maximumBy (comparing length) (groupBy (==) (sort $ foldr (++) [] (map (\(x,y) -> [x..y-1]) v) ))))) allList
+    in
+        mapped
 
 
 type CurrentId = String
@@ -52,9 +68,6 @@ toMapHelper rs id s e m =
             if (isPrefixOf "falls" (action r)) then toMapHelper (tail rs) id (minutes r) e m else
                 toMapHelper (tail rs) id s e (M.adjust ((s,(minutes r)) :) id m)     
 
-
-part2 = do
-    print "TODO"
 
 toRecord :: String -> Record
 toRecord s = 
