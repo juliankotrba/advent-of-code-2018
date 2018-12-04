@@ -28,15 +28,17 @@ part2 = do
     let result = solve2 input
     print result
         
-solve2 :: [String] -> [(String, [CurrentStart])]
+solve2 :: [String] -> (String, CurrentStart)
 solve2 xs = 
     let
         allMap = toMap $ sortRecords $ map toRecord xs
         allList = M.toList allMap
-        mapped = map (\(k,v) ->  (k, (maximumBy (comparing length) (groupBy (==) (sort $ foldr (++) [] (map (\(x,y) -> [x..y-1]) v) ))))) allList
+        mapped = map (\(k,v) ->  (k, (maximumBy (comparing length) (groupB (sort $ concat (map (\(x,y) -> [x..y-1]) v) ))))) allList
+        sortedDec = reverse $ sortBy (\(_, l1) (_,l2) ->  compare (length l1) (length l2)) mapped
     in
-        mapped
+        map (\(s,xs) -> (s, xs!!0)) sortedDec!!0
 
+groupB as = if (length as == 0) then [[]] else groupBy (==) as      
 
 type CurrentId = String
 type CurrentStart = Int
