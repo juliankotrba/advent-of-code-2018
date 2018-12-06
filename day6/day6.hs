@@ -3,6 +3,10 @@ import Data.List.Split
 import Data.List
 import qualified Data.Set as S
 
+main = do
+    part1
+    part2
+
 part1 = do
     content <- readFile "input.txt"
     let input = parse content
@@ -12,11 +16,27 @@ solve1 :: [(Char, (Int,Int))] -> Int
 solve1 input = 
     let
         bnds = bounds $ map snd input
-        matrix = buildM input (fst bnds) (snd bnds)
+        matrix = buildM1 input (fst bnds) (snd bnds)
         bndValues = S.toList $ boundValues matrix
      in
-        (sortBy (flip compare) $ map (length) $ group $ sort $ removeCs bndValues (concat matrix))!!0   
+        (sortBy (flip compare) $ map (length) $ group $ sort $ removeAll bndValues (concat matrix))!!0   
 
+part2 = do
+    content <- readFile "input.txt"
+    let input = parse content
+    --let input = parse simpleInput
+    print $ solve2 input
+    
+          
+solve2 :: [(Char, (Int,Int))] -> Int
+solve2 input = 
+    let
+        bnds = bounds $ map snd input
+        matrix = buildM2 input (fst bnds) (snd bnds)
+    in
+        length $ filter (\c-> c=='#') $ concat matrix
+        
+        
 boundValues :: [[Char]] -> S.Set Char
 boundValues matrix =
     let
@@ -36,11 +56,24 @@ bounds cs =
     in
         (x,y) 
         
-buildM :: [(Char, (Int,Int))] -> Int -> Int -> [[Char]]
-buildM inp c r = [ [(calcChar inp (x,y)) | x<-[0..c+1]] | y<-[0..r] ]
+buildM1 :: [(Char, (Int,Int))] -> Int -> Int -> [[Char]]
+buildM1 inp c r = [ [(calcChar1 inp (x,y)) | x<-[0..c+1]] | y<-[0..r] ]
 
-calcChar :: [(Char, (Int,Int))] -> (Int, Int) -> Char
-calcChar inp coord = 
+buildM2 :: [(Char, (Int,Int))] -> Int -> Int -> [[Char]]
+buildM2 inp c r = [ [(calcChar2 inp (x,y)) | x<-[0..c+1]] | y<-[0..r] ]
+
+calcChar2 :: [(Char, (Int,Int))] -> (Int, Int) -> Char
+calcChar2 inp coord = 
+    let
+        mans = map (\(c, xy) -> (c, manDist xy coord)) inp
+        su = sum $ (map snd mans)
+        min = minimumBy (\(_,dist1) (_,dist2) -> compare dist1 dist2) mans
+        mins = filter (\(_,dist) -> dist == (snd min)) mans
+    in
+        if su < 10000 then '#' else  if length mins == 1 then fst min else '.'
+
+calcChar1 :: [(Char, (Int,Int))] -> (Int, Int) -> Char
+calcChar1 inp coord = 
     let
         mans = map (\(c, xy) -> (c, manDist xy coord)) inp
         min = minimumBy (\(_,dist1) (_,dist2) -> compare dist1 dist2) mans
@@ -56,10 +89,9 @@ parse s = zip allAlphabet  $ map (\s-> (read $ (splitOn ", " s)!!0 :: Int,  read
 
 allAlphabet :: [Char]
 allAlphabet = [ c | c<- ['A'..'Z']] ++ [ c | c<- ['a'..'z']]
-part2 = do
-    print "TODO"
 
-removeCs cs ls = [ x | x <- ls, not (x `elem` cs) ]       
+removeAll :: [Char] -> [Char] -> [Char]
+removeAll cs ls = [ x | x <- ls, not (x `elem` cs) ]       
 
 simpleInput = "1, 1\n\
 \1, 6\n\
