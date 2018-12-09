@@ -5,6 +5,9 @@ import qualified Data.Map as M
 part1 = do
     print $ solve1 425 70848
 
+part2 = do
+    print $ solve1 425 (70848*100)
+    
 type PlayerCount = Int   
 type MaxMarbleCount = Int
 
@@ -39,7 +42,7 @@ solve1Helper round i maxIndex p maxPlayer circle scoresMap
                 newCircle = deleteAt adjustedIndex circle
                 newScores = if M.member p scoresMap then M.adjust ((round + removedValue)+) p scoresMap else M.insert p (round + removedValue) scoresMap
             in
-                if adjustedIndex < 0 then error "<0" else solve1Helper (round+1) adjustedIndex maxIndex (p+1) maxPlayer newCircle newScores    
+                solve1Helper (round+1) adjustedIndex maxIndex (p+1) maxPlayer newCircle newScores    
 
 
 insertAt :: Int -> Int-> [Int] -> [Int] 
